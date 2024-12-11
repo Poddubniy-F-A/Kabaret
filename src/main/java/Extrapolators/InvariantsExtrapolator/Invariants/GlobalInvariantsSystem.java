@@ -14,24 +14,34 @@ public class GlobalInvariantsSystem implements ExtrapolatableInvariantsSystem {
             I3y = (node, _) -> node.u();
 
     @Override
-    public Node getExtrapolatedNodeX(Node nodeL, Node newNodeLC, Node nodeR, Node newNodeRC) {
+    public Node getExtrapolatedNodeX(
+            Node nodeL, Node newNodeLC, Node[] limitersL,
+            Node nodeR, Node newNodeRC, Node[] limitersR
+    ) {
         double
-                extrapolatedFromLeftI1 = I1x.extrapolateBy(nodeL, newNodeLC),
-                extrapolatedFromRightI2 = I2x.extrapolateBy(nodeR, newNodeRC),
+                extrapolatedFromLeftI1 = I1x.limitedExtrapolateBy(nodeL, newNodeLC, limitersL),
+                extrapolatedFromRightI2 = I2x.limitedExtrapolateBy(nodeR, newNodeRC, limitersR),
                 h = Math.pow((extrapolatedFromLeftI1 - extrapolatedFromRightI2) / 4, 2) / G,
                 u = (extrapolatedFromLeftI1 + extrapolatedFromRightI2) / 2,
-                v = u > 0 ? I3x.extrapolateBy(nodeL, newNodeLC) : I3x.extrapolateBy(nodeR, newNodeRC);
+                v = u > 0 ?
+                        I3x.limitedExtrapolateBy(nodeL, newNodeLC, limitersL) :
+                        I3x.limitedExtrapolateBy(nodeR, newNodeRC, limitersR);
         return new Node(h, u, v);
     }
 
     @Override
-    public Node getExtrapolatedNodeY(Node nodeB, Node newNodeBC, Node nodeT, Node newNodeTC) {
+    public Node getExtrapolatedNodeY(
+            Node nodeB, Node newNodeBC, Node[] limitersB,
+            Node nodeT, Node newNodeTC, Node[] limitersT
+    ) {
         double
-                extrapolatedFromBottomI1 = I1y.extrapolateBy(nodeB, newNodeBC),
-                extrapolatedFromTopI2 = I2y.extrapolateBy(nodeT, newNodeTC),
+                extrapolatedFromBottomI1 = I1y.limitedExtrapolateBy(nodeB, newNodeBC, limitersB),
+                extrapolatedFromTopI2 = I2y.limitedExtrapolateBy(nodeT, newNodeTC, limitersT),
                 h = Math.pow((extrapolatedFromBottomI1 - extrapolatedFromTopI2) / 4, 2) / G,
                 v = (extrapolatedFromBottomI1 + extrapolatedFromTopI2) / 2,
-                u = v > 0 ? I3y.extrapolateBy(nodeB, newNodeBC) : I3y.extrapolateBy(nodeT, newNodeTC);
+                u = v > 0 ?
+                        I3y.limitedExtrapolateBy(nodeB, newNodeBC, limitersB) :
+                        I3y.limitedExtrapolateBy(nodeT, newNodeTC, limitersT);
         return new Node(h, u, v);
     }
 }

@@ -9,7 +9,6 @@ import Extrapolators.InvariantsExtrapolator.Invariants.LocalInvariantsSystem;
 import Initializers.Initializer;
 
 import static Extensions.GridsFunctions.*;
-import static Extensions.Node.getLimitedNode;
 
 public class InvariantsExtrapolator implements Extrapolator {
     private final int slicesNumX, sliceLengthX, slicesNumY, sliceLengthY;
@@ -32,7 +31,7 @@ public class InvariantsExtrapolator implements Extrapolator {
     }
 
     @Override
-    public Node[][] getNodesX(Node[][] nodesX, Node[][] nodesC, Node[][] newNodesC) {
+    public Node[][] getExtrapolatedNodesX(Node[][] nodesX, Node[][] nodesC, Node[][] newNodesC) {
         Node[][] res = new Node[slicesNumX][sliceLengthX];
         for (int i = 0; i < slicesNumX; i++) {
             for (int j = 0; j < sliceLengthX; j++) {
@@ -43,9 +42,9 @@ public class InvariantsExtrapolator implements Extrapolator {
                         newNodeRC = j < sliceLengthX - 1 ? newNodesC[i][j] : reflectedNodesX[i][2],
                         nodeRC = j < sliceLengthX - 1 ? nodesC[i][j] : reflectedNodesX[i][2],
                         nodeR = j < sliceLengthX - 1 ? nodesX[i][j + 1] : reflectedNodesX[i][3];
-                res[i][j] = getLimitedNode(
-                        invariantsSystem.getExtrapolatedNodeX(nodeL, newNodeLC, nodeR, newNodeRC),
-                        new Node[]{nodeL, nodeLC, nodesX[i][j], nodeRC, nodeR}
+                res[i][j] = invariantsSystem.getExtrapolatedNodeX(
+                        nodeL, newNodeLC, new Node[]{nodeL, nodeLC, nodesX[i][j]},
+                        nodeR, newNodeRC, new Node[]{nodesX[i][j], nodeRC, nodeR}
                 );
             }
         }
@@ -53,7 +52,7 @@ public class InvariantsExtrapolator implements Extrapolator {
     }
 
     @Override
-    public Node[][] getNodesY(Node[][] nodesY, Node[][] nodesC, Node[][] newNodesC) {
+    public Node[][] getExtrapolatedNodesY(Node[][] nodesY, Node[][] nodesC, Node[][] newNodesC) {
         Node[][] res = new Node[slicesNumY][sliceLengthY];
         for (int i = 0; i < slicesNumY; i++) {
             for (int j = 0; j < sliceLengthY; j++) {
@@ -64,9 +63,9 @@ public class InvariantsExtrapolator implements Extrapolator {
                         newNodeTC = i < slicesNumY - 1 ? newNodesC[i][j] : reflectedNodesY[2][j],
                         nodeTC = i < slicesNumY - 1 ? nodesC[i][j] : reflectedNodesY[2][j],
                         nodeT = i < slicesNumY - 1 ? nodesY[i + 1][j] : reflectedNodesY[3][j];
-                res[i][j] = getLimitedNode(
-                        invariantsSystem.getExtrapolatedNodeY(nodeB, newNodeBC, nodeT, newNodeTC),
-                        new Node[]{nodeB, nodeBC, nodesY[i][j], nodeTC, nodeT}
+                res[i][j] = invariantsSystem.getExtrapolatedNodeY(
+                        nodeB, newNodeBC, new Node[]{nodeB, nodeBC, nodesY[i][j]},
+                        nodeT, newNodeTC, new Node[]{nodesY[i][j], nodeTC, nodeT}
                 );
             }
         }
