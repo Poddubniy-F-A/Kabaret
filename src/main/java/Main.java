@@ -8,7 +8,6 @@ import Extensions.Fillers.VortexFiller;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static Extensions.Constants.*;
 import static Extensions.GridsFunctions.getMidGridFrom;
 import static Extensions.GridsFunctions.getUniformGridBy;
 
@@ -30,6 +29,8 @@ public class Main {
             gridX = getUniformGridBy(STEPS_X, STEP_X), gridXMid = getMidGridFrom(gridX),
             gridY = getUniformGridBy(STEPS_Y, STEP_Y), gridYMid = getMidGridFrom(gridY);
 
+    private static final PhasesHandler phasesHandler = new PhasesHandler(gridX, gridY);
+
     private static final double H0 = 1.0;
     private static final Filler filler = new VortexFiller(
             LENGTH / 2, HEIGHT / 2,
@@ -45,7 +46,6 @@ public class Main {
     );
 
     private static final ArrayList<Double> times = new ArrayList<>();
-    private static double curTau;
 
     private static Node[][]
             nodesC = initializer.getInitializedNodesC(),
@@ -59,12 +59,12 @@ public class Main {
             outputHandler.addRecord(nodesC);
             times.add(curTime);
             while (curTime < TIME) {
-                updateTau();
+                double curTau = phasesHandler.getTau(nodesC);
 
-                Node[][] newNodesC = newNodesCFrom(nodesC);
+                Node[][] newNodesC = phasesHandler.getNewNodesCFrom(nodesC, nodesX, nodesY, curTau);
                 nodesX = extrapolator.getExtrapolatedNodesX(nodesX, nodesC, newNodesC, curTau);
                 nodesY = extrapolator.getExtrapolatedNodesY(nodesY, nodesC, newNodesC, curTau);
-                nodesC = newNodesCFrom(newNodesC);
+                nodesC = phasesHandler.getNewNodesCFrom(newNodesC, nodesX, nodesY, curTau);
 
                 outputHandler.addRecord(nodesC);
                 curTime += curTau;
@@ -76,50 +76,5 @@ public class Main {
             System.err.println("Проверьте корректность путей к выходным файлам");
             throw new RuntimeException(e);
         }
-    }
-
-    private static void updateTau() {
-        curTau = MIN_TAU;
-        for (int i = 0; i < gridY.length - 1; i++) {
-            for (int j = 0; j < gridX.length - 1; j++) {
-                Node node = nodesC[i][j];
-                curTau = Math.min(curTau, Math.min(
-                        (gridX[j + 1] - gridX[j]) / (Math.sqrt(G * node.h()) + Math.abs(node.u())),
-                        (gridY[i + 1] - gridY[i]) / (Math.sqrt(G * node.h()) + Math.abs(node.v()))
-                ));
-            }
-        }
-        curTau *= CFL;
-    }
-
-    private static Node[][] newNodesCFrom(Node[][] nodesCOld) {
-        final int slicesNum = gridYMid.length, sliceLength = gridXMid.length;
-
-        Node[][] res = new Node[slicesNum][sliceLength];
-        for (int i = 0; i < slicesNum; i++) {
-            for (int j = 0; j < sliceLength; j++) {
-                Node
-                        nodeC = nodesCOld[i][j],
-                        nodeL = nodesX[i][j], nodeR = nodesX[i][j + 1],
-                        nodeB = nodesY[i][j], nodeT = nodesY[i + 1][j];
-                double
-                        h = nodeC.h() - (
-                        (nodeR.h() * nodeR.u() - nodeL.h() * nodeL.u()) / STEP_X +
-                                (nodeT.h() * nodeT.v() - nodeB.h() * nodeB.v()) / STEP_Y
-                ) * curTau / 2,
-                        u = (nodeC.h() * nodeC.u() - (
-                                (nodeR.h() * Math.pow(nodeR.u(), 2) - nodeL.h() * Math.pow(nodeL.u(), 2)) / STEP_X +
-                                        (nodeT.h() * nodeT.u() * nodeT.v() - nodeB.h() * nodeB.u() * nodeB.v()) / STEP_Y +
-                                        G * (Math.pow(nodeR.h(), 2) - Math.pow(nodeL.h(), 2)) / (2 * STEP_X)
-                        ) * curTau / 2) / h,
-                        v = (nodeC.h() * nodeC.v() - (
-                                (nodeT.h() * Math.pow(nodeT.v(), 2) - nodeB.h() * Math.pow(nodeB.v(), 2)) / STEP_Y +
-                                        (nodeR.h() * nodeR.u() * nodeR.v() - nodeL.h() * nodeL.u() * nodeL.v()) / STEP_X +
-                                        G * (Math.pow(nodeT.h(), 2) - Math.pow(nodeB.h(), 2)) / (2 * STEP_Y)
-                        ) * curTau / 2) / h;
-                res[i][j] = new Node(h, u, v);
-            }
-        }
-        return res;
     }
 }
