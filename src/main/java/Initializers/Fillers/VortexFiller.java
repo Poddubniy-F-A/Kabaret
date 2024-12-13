@@ -1,15 +1,15 @@
-package Initializers;
+package Initializers.Fillers;
 
 import Extensions.Node;
 
 import static Extensions.Constants.G;
 
-public class VortexInitializer implements Initializer {
+public class VortexFiller implements Filler {
     private static final double ALPHA = 0.404, BETA = 0.3;
 
     private final double x0, y0, r0, h0;
 
-    public VortexInitializer(double x0, double y0, double r0, double h0) {
+    public VortexFiller(double x0, double y0, double r0, double h0) {
         this.x0 = x0;
         this.y0 = y0;
         this.r0 = r0;
@@ -17,9 +17,10 @@ public class VortexInitializer implements Initializer {
     }
 
     @Override
-    public Node[][] init(double[] gridX, double[] gridY) {
-        Node[][] res = new Node[gridY.length][gridX.length];
+    public Node[][] getFilledArrayBy(double[] gridX, double[] gridY) {
+        int slicesNum = gridY.length, sliceLength = gridX.length;
 
+        Node[][] res = new Node[slicesNum][sliceLength];
         for (int i = 0; i < gridY.length; i++) {
             for (int j = 0; j < gridX.length; j++) {
                 res[i][j] = new Node(
@@ -29,7 +30,6 @@ public class VortexInitializer implements Initializer {
                 );
             }
         }
-
         return res;
     }
 

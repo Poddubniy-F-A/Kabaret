@@ -2,6 +2,8 @@ import Extensions.Node;
 import Extrapolators.Extrapolator;
 import Extrapolators.InvariantsExtrapolator.*;
 import Initializers.*;
+import Initializers.Fillers.Filler;
+import Initializers.Fillers.VortexFiller;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,7 +11,6 @@ import java.util.ArrayList;
 import static Extensions.Constants.*;
 import static Extensions.GridsFunctions.getMidGridFrom;
 import static Extensions.GridsFunctions.getUniformGridBy;
-import static Extensions.Node.getAverage;
 
 public class Main {
     private static final String
@@ -30,25 +31,31 @@ public class Main {
             gridY = getUniformGridBy(STEPS_Y, STEP_Y), gridYMid = getMidGridFrom(gridY);
 
     private static final double H0 = 1.0;
-    private static final Initializer initializer = new VortexInitializer(
+    private static final Filler filler = new VortexFiller(
             LENGTH / 2, HEIGHT / 2,
             Math.sqrt(Math.pow(STEP_X, 2) + Math.pow(STEP_Y, 2)), H0
-    );//new ConstantInitializer(H0);//
+    );//new ConstantFiller(H0);//
+    private static final Initializer initializer = new DefaultInitializer(
+            filler,
+            gridX, gridXMid, gridY, gridYMid
+    );//new CentersOrientedInitializer(filler, gridXMid, gridYMid);//
     private static final Extrapolator extrapolator = new InvariantsExtrapolator(
             gridX, gridY,
-            initializer, false
+            filler, false
     );
 
     private static final ArrayList<Double> times = new ArrayList<>();
-    private static double curTime = 0, curTau;
+    private static double curTau;
 
     private static Node[][]
-            nodesC = initializer.init(gridXMid, gridYMid),
-            nodesX = initializer.init(gridX, gridYMid),//getNodesXFromNodesC(),//
-            nodesY = initializer.init(gridXMid, gridY);//getNodesYFromNodesC();//
+            nodesC = initializer.getNodesC(),
+            nodesX = initializer.getNodesX(),
+            nodesY = initializer.getNodesY();
 
     public static void main(String[] args) {
         try (OutputHandler outputHandler = new OutputHandler(pathToOutputH, pathToOutputU, pathToOutputV)) {
+            double curTime = 0;
+
             outputHandler.addRecord(nodesC);
             times.add(curTime);
             while (curTime < TIME) {
@@ -69,30 +76,6 @@ public class Main {
             System.err.println("Проверьте корректность путей к выходным файлам");
             throw new RuntimeException(e);
         }
-    }
-
-    private static Node[][] getNodesXFromNodesC() {
-        final int slicesC = nodesC.length, sliceCLength = nodesC[0].length;
-
-        Node[][] res = new Node[slicesC][sliceCLength + 1];
-        for (int i = 0; i < slicesC; i++) {
-            for (int j = 0; j <= sliceCLength; j++) {
-                res[i][j] = getAverage(nodesC[i][Math.max(j - 1, 0)], nodesC[i][Math.min(j, sliceCLength - 1)]);
-            }
-        }
-        return res;
-    }
-
-    private static Node[][] getNodesYFromNodesC() {
-        final int slicesC = nodesC.length, sliceCLength = nodesC[0].length;
-
-        Node[][] res = new Node[slicesC + 1][sliceCLength];
-        for (int i = 0; i <= slicesC; i++) {
-            for (int j = 0; j < sliceCLength; j++) {
-                res[i][j] = getAverage(nodesC[Math.max(i - 1, 0)][j], nodesC[Math.min(i, slicesC - 1)][j]);
-            }
-        }
-        return res;
     }
 
     private static void updateTau() {
@@ -123,7 +106,7 @@ public class Main {
                         h = nodeC.h() - (
                         (nodeR.h() * nodeR.u() - nodeL.h() * nodeL.u()) / STEP_X +
                                 (nodeT.h() * nodeT.v() - nodeB.h() * nodeB.v()) / STEP_Y
-                        ) * curTau / 2,
+                ) * curTau / 2,
                         u = (nodeC.h() * nodeC.u() - (
                                 (nodeR.h() * Math.pow(nodeR.u(), 2) - nodeL.h() * Math.pow(nodeL.u(), 2)) / STEP_X +
                                         (nodeT.h() * nodeT.u() * nodeT.v() - nodeB.h() * nodeB.u() * nodeB.v()) / STEP_Y +

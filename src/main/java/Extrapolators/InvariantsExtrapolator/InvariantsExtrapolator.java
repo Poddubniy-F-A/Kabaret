@@ -3,7 +3,7 @@ package Extrapolators.InvariantsExtrapolator;
 import Extensions.Node;
 import Extrapolators.Extrapolator;
 import Extrapolators.InvariantsExtrapolator.Invariants.Systems.*;
-import Initializers.Initializer;
+import Initializers.Fillers.Filler;
 
 import static Extensions.GridsFunctions.*;
 
@@ -13,7 +13,7 @@ public class InvariantsExtrapolator implements Extrapolator {
     private final double[] stepsArrayX, stepsArrayY;
     private final ExtrapolatableInvariantsSystem invariantsSystem;
 
-    public InvariantsExtrapolator(double[] gridX, double[] gridY, Initializer initializer, boolean useLocalInvariants) {
+    public InvariantsExtrapolator(double[] gridX, double[] gridY, Filler filler, boolean useLocalInvariants) {
         double[] gridXMid = getMidGridFrom(gridX), gridYMid = getMidGridFrom(gridY);
 
         slicesNumX = gridYMid.length;
@@ -21,8 +21,8 @@ public class InvariantsExtrapolator implements Extrapolator {
         slicesNumY = gridY.length;
         sliceLengthY = gridXMid.length;
 
-        reflectedNodesX = initializer.init(getReflectedBoardsWithMiddlesOf(gridX), gridYMid);
-        reflectedNodesY = initializer.init(gridXMid, getReflectedBoardsWithMiddlesOf(gridY));
+        reflectedNodesX = filler.getFilledArrayBy(getReflectedBoardsWithMiddlesOf(gridX), gridYMid);
+        reflectedNodesY = filler.getFilledArrayBy(gridXMid, getReflectedBoardsWithMiddlesOf(gridY));
 
         stepsArrayX = allStepsArrayOf(gridX);
         stepsArrayY = allStepsArrayOf(gridY);

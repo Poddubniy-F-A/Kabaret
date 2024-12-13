@@ -14,6 +14,6 @@ public class EigenvaluesSystem {
                     "I3x", Node::u,
                     "I1y", node -> node.v() + Math.sqrt(G * node.h()),
                     "I2y", node -> node.v() - Math.sqrt(G * node.h()),
-                    "I3y", (Eigenvalue) Node::v
+                    "I3y", Node::v
             );
 }

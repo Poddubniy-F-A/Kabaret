@@ -3,5 +3,9 @@ package Initializers;
 import Extensions.Node;
 
 public interface Initializer {
-    Node[][] init(double[] gridX, double[] gridY);
+    Node[][] getNodesC();
+
+    Node[][] getNodesX();
+
+    Node[][] getNodesY();
 }
