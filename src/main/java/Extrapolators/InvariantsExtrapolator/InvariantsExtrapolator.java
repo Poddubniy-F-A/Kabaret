@@ -1,11 +1,8 @@
 package Extrapolators.InvariantsExtrapolator;
 
-import Extensions.GridsFunctions;
 import Extensions.Node;
 import Extrapolators.Extrapolator;
-import Extrapolators.InvariantsExtrapolator.Invariants.GlobalInvariantsSystem;
-import Extrapolators.InvariantsExtrapolator.Invariants.ExtrapolatableInvariantsSystem;
-import Extrapolators.InvariantsExtrapolator.Invariants.LocalInvariantsSystem;
+import Extrapolators.InvariantsExtrapolator.Invariants.Systems.*;
 import Initializers.Initializer;
 
 import static Extensions.GridsFunctions.*;
@@ -13,25 +10,36 @@ import static Extensions.GridsFunctions.*;
 public class InvariantsExtrapolator implements Extrapolator {
     private final int slicesNumX, sliceLengthX, slicesNumY, sliceLengthY;
     private final Node[][] reflectedNodesX, reflectedNodesY;
+    private final double[] stepsArrayX, stepsArrayY;
     private final ExtrapolatableInvariantsSystem invariantsSystem;
 
     public InvariantsExtrapolator(double[] gridX, double[] gridY, Initializer initializer, boolean useLocalInvariants) {
-        double[] gridXMid = GridsFunctions.getMidGridFrom(gridX), gridYMid = GridsFunctions.getMidGridFrom(gridY);
+        double[] gridXMid = getMidGridFrom(gridX), gridYMid = getMidGridFrom(gridY);
 
         slicesNumX = gridYMid.length;
         sliceLengthX = gridX.length;
-
         slicesNumY = gridY.length;
         sliceLengthY = gridXMid.length;
 
         reflectedNodesX = initializer.init(getReflectedBoardsWithMiddlesOf(gridX), gridYMid);
         reflectedNodesY = initializer.init(gridXMid, getReflectedBoardsWithMiddlesOf(gridY));
 
+        stepsArrayX = allStepsArrayOf(gridX);
+        stepsArrayY = allStepsArrayOf(gridY);
+
         invariantsSystem = useLocalInvariants ? new LocalInvariantsSystem() : new GlobalInvariantsSystem();
     }
 
+    private double[] allStepsArrayOf(double[] grid) {
+        double[] res = new double[grid.length + 1];
+        res[0] = getReflectedStartOf(grid);
+        System.arraycopy(getStepsArrayOf(grid), 0, res, 1, res.length - 2);
+        res[res.length - 1] = getReflectedEndOf(grid);
+        return res;
+    }
+
     @Override
-    public Node[][] getExtrapolatedNodesX(Node[][] nodesX, Node[][] nodesC, Node[][] newNodesC) {
+    public Node[][] getExtrapolatedNodesX(Node[][] nodesX, Node[][] nodesC, Node[][] newNodesC, double tau) {
         Node[][] res = new Node[slicesNumX][sliceLengthX];
         for (int i = 0; i < slicesNumX; i++) {
             for (int j = 0; j < sliceLengthX; j++) {
@@ -43,8 +51,9 @@ public class InvariantsExtrapolator implements Extrapolator {
                         nodeRC = j < sliceLengthX - 1 ? nodesC[i][j] : reflectedNodesX[i][2],
                         nodeR = j < sliceLengthX - 1 ? nodesX[i][j + 1] : reflectedNodesX[i][3];
                 res[i][j] = invariantsSystem.getExtrapolatedNodeX(
-                        nodeL, newNodeLC, new Node[]{nodeL, nodeLC, nodesX[i][j]},
-                        nodeR, newNodeRC, new Node[]{nodesX[i][j], nodeRC, nodeR}
+                        nodeL, nodeLC, nodesX[i][j], nodeRC, nodeR,
+                        newNodeLC, newNodeRC,
+                        stepsArrayX[j], stepsArrayX[j + 1], tau
                 );
             }
         }
@@ -52,7 +61,7 @@ public class InvariantsExtrapolator implements Extrapolator {
     }
 
     @Override
-    public Node[][] getExtrapolatedNodesY(Node[][] nodesY, Node[][] nodesC, Node[][] newNodesC) {
+    public Node[][] getExtrapolatedNodesY(Node[][] nodesY, Node[][] nodesC, Node[][] newNodesC, double tau) {
         Node[][] res = new Node[slicesNumY][sliceLengthY];
         for (int i = 0; i < slicesNumY; i++) {
             for (int j = 0; j < sliceLengthY; j++) {
@@ -64,8 +73,9 @@ public class InvariantsExtrapolator implements Extrapolator {
                         nodeTC = i < slicesNumY - 1 ? nodesC[i][j] : reflectedNodesY[2][j],
                         nodeT = i < slicesNumY - 1 ? nodesY[i + 1][j] : reflectedNodesY[3][j];
                 res[i][j] = invariantsSystem.getExtrapolatedNodeY(
-                        nodeB, newNodeBC, new Node[]{nodeB, nodeBC, nodesY[i][j]},
-                        nodeT, newNodeTC, new Node[]{nodesY[i][j], nodeTC, nodeT}
+                        nodeB, nodeBC, nodesY[i][j], nodeTC, nodeT,
+                        newNodeBC, newNodeTC,
+                        stepsArrayY[i], stepsArrayY[i + 1], tau
                 );
             }
         }

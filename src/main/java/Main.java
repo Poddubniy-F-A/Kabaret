@@ -55,8 +55,8 @@ public class Main {
                 updateTau();
 
                 Node[][] newNodesC = newNodesCFrom(nodesC);
-                nodesX = extrapolator.getExtrapolatedNodesX(nodesX, nodesC, newNodesC);
-                nodesY = extrapolator.getExtrapolatedNodesY(nodesY, nodesC, newNodesC);
+                nodesX = extrapolator.getExtrapolatedNodesX(nodesX, nodesC, newNodesC, curTau);
+                nodesY = extrapolator.getExtrapolatedNodesY(nodesY, nodesC, newNodesC, curTau);
                 nodesC = newNodesCFrom(newNodesC);
 
                 outputHandler.addRecord(nodesC);
@@ -134,7 +134,7 @@ public class Main {
                                         (nodeR.h() * nodeR.u() * nodeR.v() - nodeL.h() * nodeL.u() * nodeL.v()) / STEP_X +
                                         G * (Math.pow(nodeT.h(), 2) - Math.pow(nodeB.h(), 2)) / (2 * STEP_Y)
                         ) * curTau / 2) / h;
-                res[i][j] = new Node(h, u, v);//nodesCOld[i][j];//
+                res[i][j] = new Node(h, u, v);
             }
         }
         return res;

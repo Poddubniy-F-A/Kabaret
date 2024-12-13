@@ -17,14 +17,31 @@ public class GridsFunctions {
         return res;
     }
 
+    public static double[] getStepsArrayOf(double[] grid) {
+        double[] res = new double[grid.length - 1];
+        for (int i = 0; i < res.length; i++) {
+            res[i] = grid[i + 1] - grid[i];
+        }
+        return res;
+    }
+
     public static double[] getReflectedBoardsWithMiddlesOf(double[] grid) {
         int lastIndex = grid.length - 1;
         return new double[]{
-                grid[0] - (grid[1] - grid[0]),
+                getReflectedStartOf(grid),
                 grid[0] - (grid[1] - grid[0]) / 2,
                 grid[lastIndex] + (grid[lastIndex] - grid[lastIndex - 1]) / 2,
-                grid[lastIndex] + (grid[lastIndex] - grid[lastIndex - 1])
+                getReflectedEndOf(grid)
         };
+    }
+
+    public static double getReflectedStartOf(double[] grid) {
+        return grid[0] - (grid[1] - grid[0]);
+    }
+
+    public static double getReflectedEndOf(double[] grid) {
+        int lastIndex = grid.length - 1;
+        return grid[lastIndex] + (grid[lastIndex] - grid[lastIndex - 1]);
     }
 
     public static String[] getStringGridFrom(double[] doubleGrid) {
