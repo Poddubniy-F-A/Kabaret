@@ -1,7 +1,7 @@
 package Initializers;
 
 import Extensions.Node;
-import Initializers.Fillers.Filler;
+import Extensions.Fillers.Filler;
 
 public class DefaultInitializer implements Initializer {
     private final Node[][] nodesC, nodesX, nodesY;
@@ -13,17 +13,17 @@ public class DefaultInitializer implements Initializer {
     }
 
     @Override
-    public Node[][] getNodesC() {
+    public Node[][] getInitializedNodesC() {
         return nodesC;
     }
 
     @Override
-    public Node[][] getNodesX() {
+    public Node[][] getInitializedNodesX() {
         return nodesX;
     }
 
     @Override
-    public Node[][] getNodesY() {
+    public Node[][] getInitializedNodesY() {
         return nodesY;
     }
 }

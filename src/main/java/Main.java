@@ -2,8 +2,8 @@ import Extensions.Node;
 import Extrapolators.Extrapolator;
 import Extrapolators.InvariantsExtrapolator.*;
 import Initializers.*;
-import Initializers.Fillers.Filler;
-import Initializers.Fillers.VortexFiller;
+import Extensions.Fillers.Filler;
+import Extensions.Fillers.VortexFiller;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,16 +41,16 @@ public class Main {
     );//new CentersOrientedInitializer(filler, gridXMid, gridYMid);//
     private static final Extrapolator extrapolator = new InvariantsExtrapolator(
             gridX, gridY,
-            filler, false
+            filler, true
     );
 
     private static final ArrayList<Double> times = new ArrayList<>();
     private static double curTau;
 
     private static Node[][]
-            nodesC = initializer.getNodesC(),
-            nodesX = initializer.getNodesX(),
-            nodesY = initializer.getNodesY();
+            nodesC = initializer.getInitializedNodesC(),
+            nodesX = initializer.getInitializedNodesX(),
+            nodesY = initializer.getInitializedNodesY();
 
     public static void main(String[] args) {
         try (OutputHandler outputHandler = new OutputHandler(pathToOutputH, pathToOutputU, pathToOutputV)) {

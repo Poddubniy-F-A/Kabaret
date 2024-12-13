@@ -1,7 +1,7 @@
 package Initializers;
 
 import Extensions.Node;
-import Initializers.Fillers.Filler;
+import Extensions.Fillers.Filler;
 
 import static Extensions.Node.getAverage;
 
@@ -29,17 +29,17 @@ public class CentersOrientedInitializer implements Initializer {
     }
 
     @Override
-    public Node[][] getNodesC() {
+    public Node[][] getInitializedNodesC() {
         return nodesC;
     }
 
     @Override
-    public Node[][] getNodesX() {
+    public Node[][] getInitializedNodesX() {
         return nodesX;
     }
 
     @Override
-    public Node[][] getNodesY() {
+    public Node[][] getInitializedNodesY() {
         return nodesY;
     }
 }
