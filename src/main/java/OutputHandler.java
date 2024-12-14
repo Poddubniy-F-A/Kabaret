@@ -9,13 +9,19 @@ import java.util.ArrayList;
 import static Extensions.GridsFunctions.getStringGridFrom;
 
 public class OutputHandler implements AutoCloseable {
+    private static final String
+            pathToOutputH = "../output/outputH.csv",
+            pathToOutputU = "../output/outputU.csv",
+            pathToOutputV = "../output/outputV.csv",
+            pathToConfig = "../output/config.csv";
+
     private final CSVWriter hWriter, uWriter, vWriter;
     private final Nodes nodes;
 
-    public OutputHandler(String pathToH, String pathToU, String pathToV, Nodes nodes) throws IOException {
-        hWriter = configuredWriter(pathToH);
-        uWriter = configuredWriter(pathToU);
-        vWriter = configuredWriter(pathToV);
+    public OutputHandler(Nodes nodes) throws IOException {
+        hWriter = configuredWriter(pathToOutputH);
+        uWriter = configuredWriter(pathToOutputU);
+        vWriter = configuredWriter(pathToOutputV);
 
         this.nodes = nodes;
     }
@@ -50,7 +56,7 @@ public class OutputHandler implements AutoCloseable {
         }
     }
 
-    public void fillConfig(String pathToConfig, ArrayList<Double> times) throws IOException {
+    public void fillConfig(ArrayList<Double> times) throws IOException {
         String[] stringTimes = new String[times.size()];
         for (int i = 0; i < stringTimes.length; i++) {
             stringTimes[i] = times.get(i).toString();

@@ -13,12 +13,6 @@ import static Extensions.GridsFunctions.getMidGridFrom;
 import static Extensions.GridsFunctions.getUniformGridBy;
 
 public class Main {
-    private static final String
-            pathToConfig = "../output/config.csv",
-            pathToOutputH = "../output/outputH.csv",
-            pathToOutputU = "../output/outputU.csv",
-            pathToOutputV = "../output/outputV.csv";
-
     private static final double
             TIME = 1.0,
             LENGTH = 1.0, STEP_X = 0.02,
@@ -48,7 +42,7 @@ public class Main {
     );
 
     public static void main(String[] args) {
-        try (OutputHandler outputHandler = new OutputHandler(pathToOutputH, pathToOutputU, pathToOutputV, nodesC)) {
+        try (OutputHandler outputHandler = new OutputHandler(nodesC)) {
             ArrayList<Double> times = new ArrayList<>();
 
             double curTime = 0;
@@ -70,7 +64,7 @@ public class Main {
                 outputHandler.addRecord();
             }
 
-            outputHandler.fillConfig(pathToConfig, times);
+            outputHandler.fillConfig(times);
         } catch (IOException e) {
             System.err.println("Проверьте корректность путей к выходным файлам");
             throw new RuntimeException(e);
