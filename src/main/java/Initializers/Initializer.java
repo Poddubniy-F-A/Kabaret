@@ -1,11 +1,7 @@
 package Initializers;
 
-import Extensions.Node;
+import Extensions.Nodes;
 
 public interface Initializer {
-    Node[][] getInitializedNodesC();
-
-    Node[][] getInitializedNodesX();
-
-    Node[][] getInitializedNodesY();
+    void init(Nodes nodesC, Nodes nodesX, Nodes nodesY);
 }

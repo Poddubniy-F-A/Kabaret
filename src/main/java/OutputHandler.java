@@ -1,4 +1,5 @@
 import Extensions.Node;
+import Extensions.Nodes;
 import com.opencsv.CSVWriter;
 
 import java.io.FileWriter;
@@ -9,11 +10,14 @@ import static Extensions.GridsFunctions.getStringGridFrom;
 
 public class OutputHandler implements AutoCloseable {
     private final CSVWriter hWriter, uWriter, vWriter;
+    private final Nodes nodes;
 
-    public OutputHandler(String pathToH, String pathToU, String pathToV) throws IOException {
+    public OutputHandler(String pathToH, String pathToU, String pathToV, Nodes nodes) throws IOException {
         hWriter = configuredWriter(pathToH);
         uWriter = configuredWriter(pathToU);
         vWriter = configuredWriter(pathToV);
+
+        this.nodes = nodes;
     }
 
     @Override
@@ -27,10 +31,10 @@ public class OutputHandler implements AutoCloseable {
         }
     }
 
-    public void addRecord(Node[][] slice) {
-        int rowLength = slice[0].length;
+    public void addRecord() {
+        final int rowLength = nodes.getSizeX();
 
-        for (Node[] nodes : slice) {
+        for (Node[] nodes : nodes.getNodesArray()) {
             String[]
                     rowH = new String[rowLength],
                     rowU = new String[rowLength],
@@ -46,10 +50,7 @@ public class OutputHandler implements AutoCloseable {
         }
     }
 
-    public void fillConfig(
-            String pathToConfig,
-            double[] gridX, double[] gridY, ArrayList<Double> times
-    ) throws IOException {
+    public void fillConfig(String pathToConfig, ArrayList<Double> times) throws IOException {
         String[] stringTimes = new String[times.size()];
         for (int i = 0; i < stringTimes.length; i++) {
             stringTimes[i] = times.get(i).toString();
@@ -57,8 +58,8 @@ public class OutputHandler implements AutoCloseable {
 
         CSVWriter configWriter = configuredWriter(pathToConfig);
         configWriter.writeNext(stringTimes);
-        configWriter.writeNext(getStringGridFrom(gridX));
-        configWriter.writeNext(getStringGridFrom(gridY));
+        configWriter.writeNext(getStringGridFrom(nodes.getGridX()));
+        configWriter.writeNext(getStringGridFrom(nodes.getGridY()));
         configWriter.close();
     }
 

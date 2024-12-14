@@ -14,10 +14,10 @@ public interface ExtrapolatableInvariant {
     default double limitedExtrapolateBy(
             Node node, Node nodeC,
             Node limiter1, Node limiterC, Node limiter2,
-            double tau, double dx
+            double tau, double dh
     ) {
         double add = tau * ((I(nodeC, nodeC) - I(limiterC, nodeC)) / (tau / 2) +
-                getEigenvalue(nodeC) * (I(limiter2, nodeC) - I(limiter1, nodeC)) / dx);
+                getEigenvalue(nodeC) * (I(limiter2, nodeC) - I(limiter1, nodeC)) / dh);
         return Math.min(
                 Math.max(I(limiter1, nodeC), Math.max(I(limiterC, nodeC), I(limiter2, nodeC))) + add,
                 Math.max(

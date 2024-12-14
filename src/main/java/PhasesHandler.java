@@ -1,26 +1,28 @@
 import Extensions.Node;
+import Extensions.Nodes;
 
 import static Extensions.Constants.*;
 import static Extensions.Constants.G;
 import static Extensions.GridsFunctions.getStepsArrayOf;
 
 public class PhasesHandler {
+    private final Nodes nodesC, nodesX, nodesY;
     private final double[] stepsArrayX, stepsArrayY;
-    private final int slicesNum, sliceLength;
 
-    public PhasesHandler(double[] gridX, double[] gridY) {
-        stepsArrayX = getStepsArrayOf(gridX);
-        stepsArrayY = getStepsArrayOf(gridY);
+    public PhasesHandler(Nodes nodesC, Nodes nodesX, Nodes nodesY) {
+        this.nodesC = nodesC;
+        this.nodesX = nodesX;
+        this.nodesY = nodesY;
 
-        slicesNum = gridY.length - 1;
-        sliceLength = gridX.length - 1;
+        stepsArrayX = getStepsArrayOf(nodesX.getGridX());
+        stepsArrayY = getStepsArrayOf(nodesY.getGridY());
     }
 
-    public double getTau(Node[][] nodesC) {
+    public double getTau() {
         double res = MIN_TAU;
-        for (int i = 0; i < nodesC.length; i++) {
-            for (int j = 0; j < nodesC[0].length; j++) {
-                Node node = nodesC[i][j];
+        for (int i = 0; i < nodesC.getSizeY(); i++) {
+            for (int j = 0; j < nodesC.getSizeX(); j++) {
+                Node node = nodesC.getNode(i, j);
                 res = Math.min(res, Math.min(
                         stepsArrayX[j] / (Math.sqrt(G * node.h()) + Math.abs(node.u())),
                         stepsArrayY[i] / (Math.sqrt(G * node.h()) + Math.abs(node.v()))
@@ -30,15 +32,17 @@ public class PhasesHandler {
         return CFL * res;
     }
 
-    public Node[][] getNewNodesCFrom(Node[][] nodesCOld, Node[][] nodesX, Node[][] nodesY, double tau) {
+    public Node[][] getNewNodesCFrom(Node[][] nodesCOld, double tau) {
+        final int slicesNum = nodesC.getSizeY(), sliceLength = nodesC.getSizeX();
+
         Node[][] res = new Node[slicesNum][sliceLength];
         for (int i = 0; i < slicesNum; i++) {
             double dy = stepsArrayY[i];
             for (int j = 0; j < sliceLength; j++) {
                 Node
                         nodeC = nodesCOld[i][j],
-                        nodeL = nodesX[i][j], nodeR = nodesX[i][j + 1],
-                        nodeB = nodesY[i][j], nodeT = nodesY[i + 1][j];
+                        nodeL = nodesX.getNode(i, j), nodeR = nodesX.getNode(i, j + 1),
+                        nodeB = nodesY.getNode(i, j), nodeT = nodesY.getNode(i + 1, j);
                 double
                         dx = stepsArrayX[j],
                         h = nodeC.h() - (
