@@ -2,6 +2,9 @@ package Extensions;
 
 import Extensions.Fillers.Filler;
 
+import java.util.*;
+import java.util.function.ToDoubleFunction;
+
 public class Nodes {
     private Node[][] nodesArray;
     private final double[] gridX, gridY;
@@ -37,6 +40,24 @@ public class Nodes {
 
     public int getSizeY() {
         return sizeY;
+    }
+
+    public double[][] getValuesArrayBy(ToDoubleFunction<Node> func) {
+        return Arrays.stream(nodesArray).map(
+                slice -> Arrays.stream(slice).mapToDouble(func).toArray()
+        ).toArray(double[][]::new);
+    }
+
+    public double getMinH() {
+        return Arrays.stream(nodesArray).mapToDouble(
+                slice -> Arrays.stream(slice).mapToDouble(Node::h).min().getAsDouble()
+        ).min().getAsDouble();
+    }
+
+    public double getMaxH() {
+        return Arrays.stream(nodesArray).mapToDouble(
+                slice -> Arrays.stream(slice).mapToDouble(Node::h).max().getAsDouble()
+        ).max().getAsDouble();
     }
 
     public void setNodesArray(Filler filler) {

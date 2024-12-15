@@ -47,15 +47,15 @@ public class InvariantsExtrapolator implements Extrapolator {
     }
 
     @Override
-    public Node[][] getExtrapolatedNodesX(Node[][] newNodesC, double tau) {
+    public Node[][] getExtrapolatedNodesX(Node[][] newNodesCArray, double tau) {
         Node[][] res = new Node[slicesNumX][sliceLengthX];
         for (int i = 0; i < slicesNumX; i++) {
             for (int j = 0; j < sliceLengthX; j++) {
                 Node
                         nodeL = j > 0 ? nodesX.getNode(i, j - 1) : reflectedNodesX[i][0],
                         nodeLC = j > 0 ? nodesC.getNode(i, j - 1) : reflectedNodesX[i][1],
-                        newNodeLC = j > 0 ? newNodesC[i][j - 1] : reflectedNodesX[i][1],
-                        newNodeRC = j < sliceLengthX - 1 ? newNodesC[i][j] : reflectedNodesX[i][2],
+                        newNodeLC = j > 0 ? newNodesCArray[i][j - 1] : reflectedNodesX[i][1],
+                        newNodeRC = j < sliceLengthX - 1 ? newNodesCArray[i][j] : reflectedNodesX[i][2],
                         nodeRC = j < sliceLengthX - 1 ? nodesC.getNode(i, j) : reflectedNodesX[i][2],
                         nodeR = j < sliceLengthX - 1 ? nodesX.getNode(i, j + 1) : reflectedNodesX[i][3];
                 res[i][j] = invariantsSystem.getExtrapolatedNodeX(
@@ -69,15 +69,15 @@ public class InvariantsExtrapolator implements Extrapolator {
     }
 
     @Override
-    public Node[][] getExtrapolatedNodesY(Node[][] newNodesC, double tau) {
+    public Node[][] getExtrapolatedNodesY(Node[][] newNodesCArray, double tau) {
         Node[][] res = new Node[slicesNumY][sliceLengthY];
         for (int i = 0; i < slicesNumY; i++) {
             for (int j = 0; j < sliceLengthY; j++) {
                 Node
                         nodeB = i > 0 ? nodesY.getNode(i - 1, j) : reflectedNodesY[0][j],
                         nodeBC = i > 0 ? nodesC.getNode(i - 1, j) : reflectedNodesY[1][j],
-                        newNodeBC = i > 0 ? newNodesC[i - 1][j] : reflectedNodesY[1][j],
-                        newNodeTC = i < slicesNumY - 1 ? newNodesC[i][j] : reflectedNodesY[2][j],
+                        newNodeBC = i > 0 ? newNodesCArray[i - 1][j] : reflectedNodesY[1][j],
+                        newNodeTC = i < slicesNumY - 1 ? newNodesCArray[i][j] : reflectedNodesY[2][j],
                         nodeTC = i < slicesNumY - 1 ? nodesC.getNode(i, j) : reflectedNodesY[2][j],
                         nodeT = i < slicesNumY - 1 ? nodesY.getNode(i + 1, j) : reflectedNodesY[3][j];
                 res[i][j] = invariantsSystem.getExtrapolatedNodeY(

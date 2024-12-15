@@ -2,11 +2,9 @@ package Extensions.Fillers;
 
 import Extensions.Node;
 
-import static Extensions.Constants.G;
+import static Extensions.Constants.*;
 
 public class VortexFiller implements Filler {
-    private static final double ALPHA = 0.404, BETA = 0.3;
-
     private final double x0, y0, r0, h0;
 
     public VortexFiller(double x0, double y0, double r0, double h0) {

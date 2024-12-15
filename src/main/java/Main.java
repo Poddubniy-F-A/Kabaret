@@ -9,13 +9,13 @@ import Extensions.Fillers.VortexFiller;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static Extensions.Constants.ALPHA;
 import static Extensions.GridsFunctions.getMidGridFrom;
 import static Extensions.GridsFunctions.getUniformGridBy;
 
 public class Main {
     private static final double
-            TIME = 1.0,
-            LENGTH = 1.0, STEP_X = 0.02,
+            LENGTH = 1.0, STEP_X = 0.01,
             HEIGHT = 1.0, STEP_Y = 0.01;
     private static final int
             STEPS_X = (int) (LENGTH / STEP_X + 1),
@@ -30,11 +30,10 @@ public class Main {
 
     private static final PhasesHandler phasesHandler = new PhasesHandler(nodesC, nodesX, nodesY);
 
-    private static final double H0 = 1.0;
-    private static final Filler filler = new VortexFiller(
-            LENGTH / 2, HEIGHT / 2,
-            Math.sqrt(Math.pow(STEP_X, 2) + Math.pow(STEP_Y, 2)), H0
-    );//new ConstantFiller(H0);//
+    private static final double
+            R0 = 3 * Math.sqrt(Math.pow(STEP_X, 2) + Math.pow(STEP_Y, 2)), H0 = 1.0,
+            TIME = 200 * (2 * Math.PI * R0) / ALPHA;
+    private static final Filler filler = new VortexFiller(LENGTH / 2, HEIGHT / 2, R0, H0);//new ConstantFiller(H0);//
     private static final Initializer initializer = new DefaultInitializer(filler);//new CentersOrientedInitializer(filler);//
     private static final Extrapolator extrapolator = new InvariantsExtrapolator(
             nodesC, nodesX, nodesY,
@@ -42,9 +41,8 @@ public class Main {
     );
 
     public static void main(String[] args) {
-        try (OutputHandler outputHandler = new OutputHandler(nodesC)) {
-            ArrayList<Double> times = new ArrayList<>();
-
+        ArrayList<Double> times = new ArrayList<>();
+        try (OutputHandler outputHandler = new OutputHandler(nodesC, times)) {
             double curTime = 0;
             times.add(curTime);
 
@@ -56,15 +54,13 @@ public class Main {
                 curTime += curTau;
                 times.add(curTime);
 
-                Node[][] newNodesC = phasesHandler.getNewNodesCFrom(nodesC.getNodesArray(), curTau);
-                nodesX.setNodesArray(extrapolator.getExtrapolatedNodesX(newNodesC, curTau));
-                nodesY.setNodesArray(extrapolator.getExtrapolatedNodesY(newNodesC, curTau));
-                nodesC.setNodesArray(phasesHandler.getNewNodesCFrom(newNodesC, curTau));
+                Node[][] newNodesCArray = phasesHandler.getNewNodesCFrom(nodesC.getNodesArray(), curTau);
+                nodesX.setNodesArray(extrapolator.getExtrapolatedNodesX(newNodesCArray, curTau));
+                nodesY.setNodesArray(extrapolator.getExtrapolatedNodesY(newNodesCArray, curTau));
+                nodesC.setNodesArray(phasesHandler.getNewNodesCFrom(newNodesCArray, curTau));
 
                 outputHandler.addRecord();
             }
-
-            outputHandler.fillConfig(times);
         } catch (IOException e) {
             System.err.println("Проверьте корректность путей к выходным файлам");
             throw new RuntimeException(e);
