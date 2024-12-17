@@ -1,21 +1,20 @@
-package Extrapolators.InvariantsExtrapolator;
-
+import Extensions.Invariants.Systems.ExtrapolatableInvariantsSystem;
+import Extensions.Invariants.Systems.GlobalInvariantsSystem;
+import Extensions.Invariants.Systems.LocalInvariantsSystem;
 import Extensions.Node;
 import Extensions.Nodes;
-import Extrapolators.Extrapolator;
-import Extrapolators.InvariantsExtrapolator.Invariants.Systems.*;
 import Extensions.Fillers.Filler;
 
 import static Extensions.GridsFunctions.*;
 
-public class InvariantsExtrapolator implements Extrapolator {
+public class Extrapolator {
     private final Nodes nodesC, nodesX, nodesY;
     private final int slicesNumX, sliceLengthX, slicesNumY, sliceLengthY;
     private final Node[][] reflectedNodesX, reflectedNodesY;
     private final ExtrapolatableInvariantsSystem invariantsSystem;
     private final double[] stepsArrayX, stepsArrayY;
 
-    public InvariantsExtrapolator(Nodes nodesC, Nodes nodesX, Nodes nodesY, Filler filler, boolean useLocalInvariants) {
+    public Extrapolator(Nodes nodesC, Nodes nodesX, Nodes nodesY, Filler filler, boolean useLocalInvariants) {
         this.nodesC = nodesC;
         this.nodesX = nodesX;
         this.nodesY = nodesY;
@@ -46,7 +45,6 @@ public class InvariantsExtrapolator implements Extrapolator {
         return res;
     }
 
-    @Override
     public Node[][] getExtrapolatedNodesX(Node[][] newNodesCArray, double tau) {
         Node[][] res = new Node[slicesNumX][sliceLengthX];
         for (int i = 0; i < slicesNumX; i++) {
@@ -68,7 +66,6 @@ public class InvariantsExtrapolator implements Extrapolator {
         return res;
     }
 
-    @Override
     public Node[][] getExtrapolatedNodesY(Node[][] newNodesCArray, double tau) {
         Node[][] res = new Node[slicesNumY][sliceLengthY];
         for (int i = 0; i < slicesNumY; i++) {

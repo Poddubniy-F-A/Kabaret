@@ -1,7 +1,5 @@
 import Extensions.Node;
 import Extensions.Nodes;
-import Extrapolators.Extrapolator;
-import Extrapolators.InvariantsExtrapolator.*;
 import Initializers.*;
 import Extensions.Fillers.Filler;
 import Extensions.Fillers.VortexFiller;
@@ -35,7 +33,7 @@ public class Main {
             TIME = 200 * (2 * Math.PI * R0) / ALPHA;
     private static final Filler filler = new VortexFiller(LENGTH / 2, HEIGHT / 2, R0, H0);//new ConstantFiller(H0);//
     private static final Initializer initializer = new DefaultInitializer(filler);//new CentersOrientedInitializer(filler);//
-    private static final Extrapolator extrapolator = new InvariantsExtrapolator(
+    private static final Extrapolator extrapolator = new Extrapolator(
             nodesC, nodesX, nodesY,
             filler, true
     );

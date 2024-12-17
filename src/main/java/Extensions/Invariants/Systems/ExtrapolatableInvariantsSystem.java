@@ -1,4 +1,4 @@
-package Extrapolators.InvariantsExtrapolator.Invariants.Systems;
+package Extensions.Invariants.Systems;
 
 import Extensions.Node;
 
